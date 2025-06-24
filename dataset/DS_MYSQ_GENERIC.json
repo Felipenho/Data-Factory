@@ -1,0 +1,53 @@
+{
+	"name": "DS_MYSQ_GENERIC",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_MYSQ_GENERIC",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"LS_PARAM_SERVER": {
+					"value": "@dataset().DS_PARAM_SERVER",
+					"type": "Expression"
+				},
+				"LS_PARAM_DATABASE": {
+					"value": "@dataset().DS_PARAM_DATABASE",
+					"type": "Expression"
+				},
+				"LS_PARAM_USER": {
+					"value": "@dataset().DS_PARAM_USER",
+					"type": "Expression"
+				},
+				"LS_PARAM_PASSWORD": {
+					"value": "@dataset().DS_PARAM_PASSWORD",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"DS_PARAM_SERVER": {
+				"type": "string"
+			},
+			"DS_PARAM_DATABASE": {
+				"type": "string"
+			},
+			"DS_PARAM_USER": {
+				"type": "string"
+			},
+			"DS_PARAM_PASSWORD": {
+				"type": "string"
+			},
+			"DS_PARAM_TABLE": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "MySqlTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": {
+				"value": "@dataset().DS_PARAM_TABLE",
+				"type": "Expression"
+			}
+		}
+	}
+}

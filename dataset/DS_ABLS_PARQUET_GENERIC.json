@@ -1,0 +1,50 @@
+{
+	"name": "DS_ABLS_PARQUET_GENERIC",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ABLS_GENERIC",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"LS_ABLS_NAME": {
+					"value": "@dataset().DS_ABLS_PARQUET_NAME",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"DS_ABLS_PARQUET_NAME": {
+				"type": "string"
+			},
+			"DS_ABLS_PARQUET_CONTAINER": {
+				"type": "string"
+			},
+			"DS_ABLS_PARQUET_FOLDER": {
+				"type": "string"
+			},
+			"DS_ABLS_PARQUET_FILE": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@coalesce(concat(dataset().DS_ABLS_PARQUET_FILE,'_',formatDateTime(addDays(utcNow(), -1), 'yyyyMMdd'),'.parquet'))",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().DS_ABLS_PARQUET_FOLDER",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().DS_ABLS_PARQUET_CONTAINER",
+					"type": "Expression"
+				}
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

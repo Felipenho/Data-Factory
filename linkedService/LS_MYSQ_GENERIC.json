@@ -1,0 +1,48 @@
+{
+	"name": "LS_MYSQ_GENERIC",
+	"properties": {
+		"parameters": {
+			"LS_PARAM_SERVER": {
+				"type": "string"
+			},
+			"LS_PARAM_DATABASE": {
+				"type": "string"
+			},
+			"LS_PARAM_USER": {
+				"type": "string"
+			},
+			"LS_PARAM_PASSWORD": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "MySql",
+		"typeProperties": {
+			"server": "@{linkedService().LS_PARAM_SERVER}",
+			"port": 3306,
+			"database": "@{linkedService().LS_PARAM_DATABASE}",
+			"username": "@{linkedService().LS_PARAM_USER}",
+			"sslMode": 1,
+			"useSystemTrustStore": 0,
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "LS_KV",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"LS_PARAM_KV_NAME": "tkvdev"
+					}
+				},
+				"secretName": {
+					"value": "@linkedService().LS_PARAM_PASSWORD",
+					"type": "Expression"
+				}
+			},
+			"driverVersion": "v2"
+		},
+		"connectVia": {
+			"referenceName": "SELFHOSTED",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

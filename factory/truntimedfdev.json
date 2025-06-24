@@ -1,9 +1,0 @@
-{
-	"name": "truntimedfdev",
-	"properties": {
-		"globalConfigurations": {
-			"PolicyValidationEnabled": "false"
-		}
-	},
-	"location": "eastus"
-}
