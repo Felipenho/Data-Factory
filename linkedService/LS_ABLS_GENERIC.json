@@ -1,0 +1,20 @@
+{
+	"name": "LS_ABLS_GENERIC",
+	"properties": {
+		"parameters": {
+			"LS_ABLS_NAME": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"serviceEndpoint": "@{concat('https://', linkedService().LS_ABLS_NAME, '.blob.core.windows.net/')}",
+			"accountKind": "StorageV2"
+		},
+		"connectVia": {
+			"referenceName": "SELFHOSTED",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

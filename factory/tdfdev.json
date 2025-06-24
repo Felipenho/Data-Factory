@@ -1,0 +1,11 @@
+{
+	"name": "tdfdev",
+	"properties": {
+		"globalConfigurations": {
+			"PipelineBillingEnabled": "true",
+			"factoryStagingLSReferenceName": "LS_ABLS_GENERIC",
+			"factoryStagingLSType": "LinkedServiceReference"
+		}
+	},
+	"location": "eastus"
+}
