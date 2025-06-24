@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "tdfdev"
+		},
+		"LS_ABLS_GENERIC_properties_typeProperties_serviceEndpoint": {
+			"value": "@{concat('https://', linkedService().LS_ABLS_NAME, '.blob.core.windows.net/')}"
+		},
+		"LS_KV_properties_typeProperties_baseUrl": {
+			"value": "@{concat('https://', linkedService().LS_PARAM_KV_NAME, '.vault.azure.net/')}"
+		},
+		"LS_MYSQ_GENERIC_properties_typeProperties_server": {
+			"value": "@{linkedService().LS_PARAM_SERVER}"
+		},
+		"LS_MYSQ_GENERIC_properties_typeProperties_database": {
+			"value": "@{linkedService().LS_PARAM_DATABASE}"
+		},
+		"LS_MYSQ_GENERIC_properties_typeProperties_username": {
+			"value": "@{linkedService().LS_PARAM_USER}"
+		},
+		"SELFHOSTED_properties_typeProperties_linkedInfo_resourceId": {
+			"value": "/subscriptions/6e0d8a2b-7829-4e7e-942c-c449e034efc5/resourcegroups/T_RG_DEV/providers/Microsoft.DataFactory/factories/tdfruntimedev/integrationruntimes/SELFHOSTED"
+		}
+	}
+}

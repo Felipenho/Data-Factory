@@ -1,0 +1,84 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "tdfdev"
+		},
+		"LS_ABLS_GENERIC_properties_typeProperties_serviceEndpoint": {
+			"type": "string",
+			"defaultValue": "@{concat('https://', linkedService().LS_ABLS_NAME, '.blob.core.windows.net/')}"
+		},
+		"LS_KV_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "@{concat('https://', linkedService().LS_PARAM_KV_NAME, '.vault.azure.net/')}"
+		},
+		"LS_MYSQ_GENERIC_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "@{linkedService().LS_PARAM_SERVER}"
+		},
+		"LS_MYSQ_GENERIC_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "@{linkedService().LS_PARAM_DATABASE}"
+		},
+		"LS_MYSQ_GENERIC_properties_typeProperties_username": {
+			"type": "string",
+			"defaultValue": "@{linkedService().LS_PARAM_USER}"
+		},
+		"SELFHOSTED_properties_typeProperties_linkedInfo_resourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/6e0d8a2b-7829-4e7e-942c-c449e034efc5/resourcegroups/T_RG_DEV/providers/Microsoft.DataFactory/factories/tdfruntimedev/integrationruntimes/SELFHOSTED"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "tdfdev_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"LS_KV_properties_typeProperties_baseUrl": {
+						"value": "[parameters('LS_KV_properties_typeProperties_baseUrl')]"
+					},
+					"SELFHOSTED_properties_typeProperties_linkedInfo_resourceId": {
+						"value": "[parameters('SELFHOSTED_properties_typeProperties_linkedInfo_resourceId')]"
+					},
+					"LS_ABLS_GENERIC_properties_typeProperties_serviceEndpoint": {
+						"value": "[parameters('LS_ABLS_GENERIC_properties_typeProperties_serviceEndpoint')]"
+					},
+					"LS_MYSQ_GENERIC_properties_typeProperties_server": {
+						"value": "[parameters('LS_MYSQ_GENERIC_properties_typeProperties_server')]"
+					},
+					"LS_MYSQ_GENERIC_properties_typeProperties_database": {
+						"value": "[parameters('LS_MYSQ_GENERIC_properties_typeProperties_database')]"
+					},
+					"LS_MYSQ_GENERIC_properties_typeProperties_username": {
+						"value": "[parameters('LS_MYSQ_GENERIC_properties_typeProperties_username')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

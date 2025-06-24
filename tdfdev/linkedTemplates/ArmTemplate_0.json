@@ -1,0 +1,528 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "tdfdev"
+		},
+		"LS_KV_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "@{concat('https://', linkedService().LS_PARAM_KV_NAME, '.vault.azure.net/')}"
+		},
+		"SELFHOSTED_properties_typeProperties_linkedInfo_resourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/6e0d8a2b-7829-4e7e-942c-c449e034efc5/resourcegroups/T_RG_DEV/providers/Microsoft.DataFactory/factories/tdfruntimedev/integrationruntimes/SELFHOSTED"
+		},
+		"LS_ABLS_GENERIC_properties_typeProperties_serviceEndpoint": {
+			"type": "string",
+			"defaultValue": "@{concat('https://', linkedService().LS_ABLS_NAME, '.blob.core.windows.net/')}"
+		},
+		"LS_MYSQ_GENERIC_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "@{linkedService().LS_PARAM_SERVER}"
+		},
+		"LS_MYSQ_GENERIC_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "@{linkedService().LS_PARAM_DATABASE}"
+		},
+		"LS_MYSQ_GENERIC_properties_typeProperties_username": {
+			"type": "string",
+			"defaultValue": "@{linkedService().LS_PARAM_USER}"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_KV')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"LS_PARAM_KV_NAME": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('LS_KV_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SELFHOSTED')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {
+					"linkedInfo": {
+						"resourceId": "[parameters('SELFHOSTED_properties_typeProperties_linkedInfo_resourceId')]",
+						"authorizationType": "Rbac"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_ABLS_GENERIC')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"LS_ABLS_NAME": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"serviceEndpoint": "[parameters('LS_ABLS_GENERIC_properties_typeProperties_serviceEndpoint')]",
+					"accountKind": "StorageV2"
+				},
+				"connectVia": {
+					"referenceName": "SELFHOSTED",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/SELFHOSTED')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_MYSQ_GENERIC')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"LS_PARAM_SERVER": {
+						"type": "string"
+					},
+					"LS_PARAM_DATABASE": {
+						"type": "string"
+					},
+					"LS_PARAM_USER": {
+						"type": "string"
+					},
+					"LS_PARAM_PASSWORD": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "MySql",
+				"typeProperties": {
+					"server": "[parameters('LS_MYSQ_GENERIC_properties_typeProperties_server')]",
+					"port": 3306,
+					"database": "[parameters('LS_MYSQ_GENERIC_properties_typeProperties_database')]",
+					"username": "[parameters('LS_MYSQ_GENERIC_properties_typeProperties_username')]",
+					"sslMode": 1,
+					"useSystemTrustStore": 0,
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "LS_KV",
+							"type": "LinkedServiceReference",
+							"parameters": {
+								"LS_PARAM_KV_NAME": "tkvdev"
+							}
+						},
+						"secretName": {
+							"value": "@linkedService().LS_PARAM_PASSWORD",
+							"type": "Expression"
+						}
+					},
+					"driverVersion": "v2"
+				},
+				"connectVia": {
+					"referenceName": "SELFHOSTED",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/SELFHOSTED')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_KV')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_ABLS_PARQUET_GENERIC')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_ABLS_GENERIC",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"LS_ABLS_NAME": {
+							"value": "@dataset().DS_ABLS_PARQUET_NAME",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"DS_ABLS_PARQUET_NAME": {
+						"type": "string"
+					},
+					"DS_ABLS_PARQUET_CONTAINER": {
+						"type": "string"
+					},
+					"DS_ABLS_PARQUET_FOLDER": {
+						"type": "string"
+					},
+					"DS_ABLS_PARQUET_FILE": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@coalesce(concat(dataset().DS_ABLS_PARQUET_FILE,'_',formatDateTime(addDays(utcNow(), -1), 'yyyyMMdd'),'.parquet'))",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().DS_ABLS_PARQUET_FOLDER",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().DS_ABLS_PARQUET_CONTAINER",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_ABLS_GENERIC')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_MYSQ_GENERIC')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_MYSQ_GENERIC",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"LS_PARAM_SERVER": {
+							"value": "@dataset().DS_PARAM_SERVER",
+							"type": "Expression"
+						},
+						"LS_PARAM_DATABASE": {
+							"value": "@dataset().DS_PARAM_DATABASE",
+							"type": "Expression"
+						},
+						"LS_PARAM_USER": {
+							"value": "@dataset().DS_PARAM_USER",
+							"type": "Expression"
+						},
+						"LS_PARAM_PASSWORD": {
+							"value": "@dataset().DS_PARAM_PASSWORD",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"DS_PARAM_SERVER": {
+						"type": "string"
+					},
+					"DS_PARAM_DATABASE": {
+						"type": "string"
+					},
+					"DS_PARAM_USER": {
+						"type": "string"
+					},
+					"DS_PARAM_PASSWORD": {
+						"type": "string"
+					},
+					"DS_PARAM_TABLE": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "MySqlTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": {
+						"value": "@dataset().DS_PARAM_TABLE",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_MYSQ_GENERIC')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_TRAN_TECHNITIUM')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Past 7 Days History Data",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "MySqlSource",
+								"query": "SELECT * FROM dns_logs;\nDELETE FROM dns_logs WHERE timestamp < NOW() - INTERVAL 7 DAY;"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "dlid",
+											"type": "Int32",
+											"physicalType": "Int32"
+										},
+										"sink": {
+											"name": "dlid",
+											"type": "Int32",
+											"physicalType": "INT_32"
+										}
+									},
+									{
+										"source": {
+											"name": "server",
+											"type": "String",
+											"physicalType": "VarChar"
+										},
+										"sink": {
+											"name": "server",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "timestamp",
+											"type": "DateTime",
+											"physicalType": "DateTime"
+										},
+										"sink": {
+											"name": "timestamp",
+											"type": "DateTime",
+											"physicalType": "INT_96"
+										}
+									},
+									{
+										"source": {
+											"name": "client_ip",
+											"type": "String",
+											"physicalType": "VarChar"
+										},
+										"sink": {
+											"name": "client_ip",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "protocol",
+											"type": "SByte",
+											"physicalType": "Byte"
+										},
+										"sink": {
+											"name": "protocol",
+											"type": "SByte",
+											"physicalType": "INT_8"
+										}
+									},
+									{
+										"source": {
+											"name": "response_type",
+											"type": "SByte",
+											"physicalType": "Byte"
+										},
+										"sink": {
+											"name": "response_type",
+											"type": "SByte",
+											"physicalType": "INT_8"
+										}
+									},
+									{
+										"source": {
+											"name": "response_rtt",
+											"type": "Double",
+											"physicalType": "Double"
+										},
+										"sink": {
+											"name": "response_rtt",
+											"type": "Double",
+											"physicalType": "DOUBLE"
+										}
+									},
+									{
+										"source": {
+											"name": "rcode",
+											"type": "SByte",
+											"physicalType": "Byte"
+										},
+										"sink": {
+											"name": "rcode",
+											"type": "SByte",
+											"physicalType": "INT_8"
+										}
+									},
+									{
+										"source": {
+											"name": "qname",
+											"type": "String",
+											"physicalType": "VarChar"
+										},
+										"sink": {
+											"name": "qname",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "qtype",
+											"type": "Int16",
+											"physicalType": "Int16"
+										},
+										"sink": {
+											"name": "qtype",
+											"type": "Int16",
+											"physicalType": "INT_32"
+										}
+									},
+									{
+										"source": {
+											"name": "qclass",
+											"type": "Int16",
+											"physicalType": "Int16"
+										},
+										"sink": {
+											"name": "qclass",
+											"type": "Int16",
+											"physicalType": "INT_32"
+										}
+									},
+									{
+										"source": {
+											"name": "answer",
+											"type": "String",
+											"physicalType": "VarChar"
+										},
+										"sink": {
+											"name": "answer",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_MYSQ_GENERIC",
+								"type": "DatasetReference",
+								"parameters": {
+									"DS_PARAM_SERVER": "mysql.local.felipenho.com",
+									"DS_PARAM_DATABASE": "technitium",
+									"DS_PARAM_USER": "usr_adf_monitoring",
+									"DS_PARAM_PASSWORD": "adf-pwd-monitoring-mysqllocal-technitium",
+									"DS_PARAM_TABLE": "dns_logs"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_ABLS_PARQUET_GENERIC",
+								"type": "DatasetReference",
+								"parameters": {
+									"DS_ABLS_PARQUET_NAME": "tstgdev",
+									"DS_ABLS_PARQUET_CONTAINER": "history",
+									"DS_ABLS_PARQUET_FOLDER": "technitium",
+									"DS_ABLS_PARQUET_FILE": "technitium"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_MYSQ_GENERIC')]",
+				"[concat(variables('factoryId'), '/datasets/DS_ABLS_PARQUET_GENERIC')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TR_SCHEDULE_WEEKLY_00_00')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "PL_TRAN_TECHNITIUM",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 7,
+						"startTime": "2025-06-29T00:00:00",
+						"timeZone": "E. South America Standard Time",
+						"schedule": {
+							"minutes": [
+								0
+							],
+							"hours": [
+								0
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/PL_TRAN_TECHNITIUM')]"
+			]
+		}
+	]
+}
