@@ -282,7 +282,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "MySqlSource",
-								"query": "SELECT * FROM dns_logs;\nDELETE FROM dns_logs WHERE timestamp < NOW() - INTERVAL 7 DAY;"
+								"query": "SELECT *\nFROM dns_logs\nWHERE timestamp >= CURDATE() - INTERVAL 1 DAY\n  AND timestamp < CURDATE();\nDELETE FROM dns_logs WHERE timestamp < NOW() - INTERVAL 8 DAY;"
 							},
 							"sink": {
 								"type": "ParquetSink",
@@ -487,7 +487,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/TR_SCHEDULE_WEEKLY_00_00')]",
+			"name": "[concat(parameters('factoryName'), '/TR_SCHEDULE_DAILY_00_00')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -506,8 +506,8 @@
 				"typeProperties": {
 					"recurrence": {
 						"frequency": "Day",
-						"interval": 7,
-						"startTime": "2025-06-29T00:00:00",
+						"interval": 1,
+						"startTime": "2025-06-25T09:00:00",
 						"timeZone": "E. South America Standard Time",
 						"schedule": {
 							"minutes": [
