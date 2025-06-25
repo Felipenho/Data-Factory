@@ -3,13 +3,20 @@
 	"properties": {
 		"annotations": [],
 		"runtimeState": "Started",
-		"pipelines": [],
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "PL_TRAN_TECHNITIUM",
+					"type": "PipelineReference"
+				}
+			}
+		],
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
 				"frequency": "Day",
 				"interval": 1,
-				"startTime": "2025-06-25T03:10:00",
+				"startTime": "2025-06-25T09:00:00",
 				"timeZone": "E. South America Standard Time",
 				"schedule": {
 					"minutes": [
