@@ -1,0 +1,216 @@
+{
+	"name": "PL_TRAN_TECHNITIUM",
+	"properties": {
+		"activities": [
+			{
+				"name": "Past 7 Days History Data",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "MySqlSource",
+						"query": "SELECT * FROM dns_logs;\nDELETE FROM dns_logs WHERE timestamp < NOW() - INTERVAL 7 DAY;"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "dlid",
+									"type": "Int32",
+									"physicalType": "Int32"
+								},
+								"sink": {
+									"name": "dlid",
+									"type": "Int32",
+									"physicalType": "INT_32"
+								}
+							},
+							{
+								"source": {
+									"name": "server",
+									"type": "String",
+									"physicalType": "VarChar"
+								},
+								"sink": {
+									"name": "server",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "timestamp",
+									"type": "DateTime",
+									"physicalType": "DateTime"
+								},
+								"sink": {
+									"name": "timestamp",
+									"type": "DateTime",
+									"physicalType": "INT_96"
+								}
+							},
+							{
+								"source": {
+									"name": "client_ip",
+									"type": "String",
+									"physicalType": "VarChar"
+								},
+								"sink": {
+									"name": "client_ip",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "protocol",
+									"type": "SByte",
+									"physicalType": "Byte"
+								},
+								"sink": {
+									"name": "protocol",
+									"type": "SByte",
+									"physicalType": "INT_8"
+								}
+							},
+							{
+								"source": {
+									"name": "response_type",
+									"type": "SByte",
+									"physicalType": "Byte"
+								},
+								"sink": {
+									"name": "response_type",
+									"type": "SByte",
+									"physicalType": "INT_8"
+								}
+							},
+							{
+								"source": {
+									"name": "response_rtt",
+									"type": "Double",
+									"physicalType": "Double"
+								},
+								"sink": {
+									"name": "response_rtt",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "rcode",
+									"type": "SByte",
+									"physicalType": "Byte"
+								},
+								"sink": {
+									"name": "rcode",
+									"type": "SByte",
+									"physicalType": "INT_8"
+								}
+							},
+							{
+								"source": {
+									"name": "qname",
+									"type": "String",
+									"physicalType": "VarChar"
+								},
+								"sink": {
+									"name": "qname",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "qtype",
+									"type": "Int16",
+									"physicalType": "Int16"
+								},
+								"sink": {
+									"name": "qtype",
+									"type": "Int16",
+									"physicalType": "INT_32"
+								}
+							},
+							{
+								"source": {
+									"name": "qclass",
+									"type": "Int16",
+									"physicalType": "Int16"
+								},
+								"sink": {
+									"name": "qclass",
+									"type": "Int16",
+									"physicalType": "INT_32"
+								}
+							},
+							{
+								"source": {
+									"name": "answer",
+									"type": "String",
+									"physicalType": "VarChar"
+								},
+								"sink": {
+									"name": "answer",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_MYSQ_GENERIC",
+						"type": "DatasetReference",
+						"parameters": {
+							"DS_PARAM_SERVER": "mysql.local.felipenho.com",
+							"DS_PARAM_DATABASE": "technitium",
+							"DS_PARAM_USER": "usr_adf_monitoring",
+							"DS_PARAM_PASSWORD": "adf-pwd-monitoring-mysqllocal-technitium",
+							"DS_PARAM_TABLE": "dns_logs"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ABLS_PARQUET_GENERIC",
+						"type": "DatasetReference",
+						"parameters": {
+							"DS_ABLS_PARQUET_NAME": "tstgdev",
+							"DS_ABLS_PARQUET_CONTAINER": "history",
+							"DS_ABLS_PARQUET_FOLDER": "technitium",
+							"DS_ABLS_PARQUET_FILE": "technitium"
+						}
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}

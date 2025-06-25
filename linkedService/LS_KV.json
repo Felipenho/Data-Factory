@@ -1,10 +1,15 @@
 {
 	"name": "LS_KV",
 	"properties": {
+		"parameters": {
+			"LS_PARAM_KV_NAME": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "AzureKeyVault",
 		"typeProperties": {
-			"baseUrl": "https://tkvdev.vault.azure.net/"
+			"baseUrl": "@{concat('https://', linkedService().LS_PARAM_KV_NAME, '.vault.azure.net/')}"
 		}
 	}
 }
