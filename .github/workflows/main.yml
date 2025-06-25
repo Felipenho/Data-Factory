@@ -1,3 +1,4 @@
+name: Azure Data Factory Deployment Workflow
 on:
   push:
     branches:
