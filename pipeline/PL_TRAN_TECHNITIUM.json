@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "MySqlSource",
-						"query": "SELECT *\nFROM dns_logs\nWHERE timestamp >= CURDATE() - INTERVAL 1 DAY\n  AND timestamp < CURDATE();\nDELETE FROM dns_logs WHERE timestamp < NOW() - INTERVAL 8 DAY;"
+						"query": "SELECT *\nFROM dns_logs\nWHERE timestamp >= CURDATE() - INTERVAL 1 DAY;\n\nDELETE FROM dns_logs \nWHERE timestamp < CURDATE() - INTERVAL 7 DAY;"
 					},
 					"sink": {
 						"type": "ParquetSink",
